@@ -4,7 +4,7 @@
 	Mincraft Monitor Webservice object: Version 0.2
 	http://www.twosphere.com.au
 	http://www.minecraftmonitor.com.au
-	
+
 	All code is provided by Twosphere for testing purposes only.
 	This code has not been thoroughly tested under all conditions. Twosphere, therefore, cannot guarantee or imply reliability, serviceability, or function of these programs.
 	All programs contained herein are provided to you "AS IS" without any warranties of any kind.
@@ -13,15 +13,15 @@
 	date: 2011-08-11
 	File: functions.inc.php
 	Webservice 'action' functions.
-	*/	
-	
-	
-	//Security, ignore this line
-	if (!empty($_SERVER['SCRIPT_FILENAME']) && 'comm.php' != basename($_SERVER['SCRIPT_FILENAME']))die ('Loading this page directly will bring dishonor to your family.');	
-	
+	*/
 
-	
-	
+
+	//Security, ignore this line
+	if (!empty($_SERVER['SCRIPT_FILENAME']) && 'comm.php' != basename($_SERVER['SCRIPT_FILENAME']))die ('Loading this page directly will bring dishonor to your family.');
+
+
+
+
 	//General functions
 	if(isset($_GET['action']) && $_GET['action'] == "config")
 	{
@@ -29,8 +29,8 @@
 
 		if(isset($_GET['v1']) && isset($_GET['v2']))
 		$json_array[$_GET['v1']]=$_GET['v2'];
-		
-		$config = file_get_contents("config.inc.php");		
+
+		$config = file_get_contents("config.inc.php");
 		$config = str_replace($json_settings, json_encode($json_array) ,$config);
 		file_put_contents("config.inc.php",$config);
 		die();
@@ -56,7 +56,7 @@
 	{
 		mkdir(MINECRAFT_PATH);
 		mkdir(MINECRAFT_PATH."/backup");
-		minecraft_getbin();		
+		minecraft_getbin();
 		die();
 	}
 
@@ -65,7 +65,7 @@
 		set_time_limit(600);
 
 		if(file_exists("javalock")) die("installing java");
-		
+
 		touch("javalock");
 		if(!file_exists(JAVA_PATH))
 		{
@@ -77,7 +77,7 @@
 			passthru("./javainstall.bin");
 
 			//move it to the permenant location
-			$javatemp = exec("ls -1 | grep jre");		
+			$javatemp = exec("ls -1 | grep jre");
 			exec("mv ./".$javatemp."/ ".JAVA_PATH);
 
 			//Clean up
@@ -115,7 +115,7 @@
 
 	if(isset($_GET['action']) && $_GET['action'] == "ping")
 	{
-		
+
 		$raw = exec("ping -c 3 -w 3 ".escapeshellarg($_GET['host'])." | grep 'bytes from'");
 		$ping = preg_match("/\d* bytes from (\d+\.\d+\.\d+\.\d+): icmp_seq=\d* ttl=\d* time=(\d+\.*\d*) ms/",$raw,$ping_match);
 
@@ -170,7 +170,7 @@
 	}
 
 	if(isset($_GET['action']) && $_GET['action'] == "deleteplayer")
-	{		
+	{
 		unlink(MINECRAFT_PATH."/world/players/".ereg_replace("[^A-Za-z0-9\_]", "", $_GET['player'] ).".dat");
 		die();
 	}
@@ -198,7 +198,7 @@
 			}
 		}
 
-		
+
 		if(isset($_GET['action']) && $_GET['action'] == "lock")
 		{
 			if($_GET['state'] == "on")
@@ -219,9 +219,9 @@
 					echo "locked";
 			}
 			die();
-		}	
-		
-		
+		}
+
+
 		if(isset($_GET['action']) && $_GET['action'] == "inventory")
 		{
 			if(!file_exists(MINECRAFT_PATH."/".$properties['level-name']."/players/".$_GET['player']."_lock.dat") )
@@ -258,9 +258,9 @@
 		}
 
 
-		
-		
-		
+
+
+
 		if(isset($_GET['action']) && $_GET['action'] == "write_inventory")
 		{
 			if(!file_exists(MINECRAFT_PATH."/".$properties['level-name']."/players/".$_GET['player']."_lock.dat") )
@@ -278,7 +278,7 @@
 				{
 					$level->root[0]['value'][$key1]['value']['type'] = 10;
 					$level->root[0]['value'][$key1]['value']['value'] = array();
-					
+
 					if(isset($_GET['data']) && $_GET['data'] != "")
 					{
 						$inventory_json = json_decode($_GET['data'],true);

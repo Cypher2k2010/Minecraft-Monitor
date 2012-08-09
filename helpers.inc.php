@@ -4,22 +4,19 @@
 	Mincraft Monitor Webservice object: Version 0.2
 	http://www.twosphere.com.au
 	http://www.minecraftmonitor.com.au
-	
+
 	All code is provided by Twosphere for testing purposes only.
 	This code has not been thoroughly tested under all conditions. Twosphere, therefore, cannot guarantee or imply reliability, serviceability, or function of these programs.
 	All programs contained herein are provided to you "AS IS" without any warranties of any kind.
 	The implied warranties of non-infringement, merchantability and fitness for a particular purpose are expressly disclaimed.
 
-	date: 2011-07-23	
+	date: 2011-07-23
 	File: helpers.inc.php
 	Contains the functions needed to integrate with the minecraft server program.
-	*/	
+	*/
 
 
-//Security, ignore this line
-//if (!empty($_SERVER['SCRIPT_FILENAME']) && 'comm.php' != basename($_SERVER['SCRIPT_FILENAME']))die ('Loading this page directly will bring dishonor to your family.');
 
-	
 function human_filesize($size)
 {
 	$mod = 1024;
@@ -101,9 +98,9 @@ function minecraft_time($contents)
 		$data = substr($sub,strlen($handle),11);
 
 		$out = getlong(substr($data,4,4));
-		
+
 		while($out>24000) $out -= 24000;
-		
+
 		return $out;
 	}
 }
@@ -122,120 +119,260 @@ function minecraft_raintime($contents)
 	}
 }
 
-
-function minecraft_send($command)
+class minecraft
 {
-	//Make sure the pipe is open or it will block php
-	if(minecraft_running())
-		exec("echo \"".$command."\" > /tmp/minein");
-}
+	private $pipein = "/home/user/mmpipein";
+	private $pipeout = "/home/user/mmpipeout";
 
-
-function minecraft_running()
-{
-	exec("/bin/ps ax|grep ".MINECRAFT_BIN,$out);
-
-	foreach($out as $line)
-		if(strpos($line,"grep") === false)
-			$proc_line[] = $line;
-
-	if(isset($proc_line))	return true;
-							return false;
-}
-
-function minecraft_stop()
-{
-	while(true)
+	public function send($command)
 	{
-		if(!minecraft_running()) break;
-		minecraft_send("stop");
-		sleep(3);
+		//Make sure the pipe is open or it will block php
+		if($this->running())
+			exec("echo \"".$command."\" > ".$this->pipein);
 	}
-}
 
-function minecraft_backupworld()
-{
-	if(minecraft_running())
+	public function running()
 	{
-		minecraft_send("say Backing up world...");
-		minecraft_send("save-all");
-		sleep(3);
-		minecraft_send("save-off");
+		exec("/bin/ps ax|grep ".MINECRAFT_BIN,$out);
+
+		foreach($out as $line)
+			if(strpos($line,"grep") === false)
+				$proc_line[] = $line;
+
+		if(isset($proc_line))	return true;
+								return false;
+	}
+
+	public function stop()
+	{
+		while(true)
+		{
+			if(!$this->running()) break;
+			$this->send("stop");
+			sleep(3);
+		}
+	}
+
+	public function backupworld()
+	{
+		//Prepare
+		$properties = $this->properties();
+		@mkdir(MINECRAFT_PATH."/backup/");
+
+
+		if($this->running())
+		{
+			$this->send("say Backing up world...");
+			$this->send("save-all");
+			sleep(3);
+			$this->send("save-off");
+			sleep(2);
+			exec("/bin/tar czf ".MINECRAFT_PATH."/backup/".strtotime("now")."-".$properties['level-name'].".tar.gz ".MINECRAFT_PATH."/".$properties['level-name']."/");
+		}
+		else
+			exec("/bin/tar czf ".MINECRAFT_PATH."/backup/".strtotime("now")."-".$properties['level-name'].".tar.gz ".MINECRAFT_PATH."/".$properties['level-name']."/");
+
+		if($this->running())
+		{
+			$this->send("save-on");
+			$this->send("say Complete.");
+		}
+	}
+
+	public function run()
+	{
+		//Create stdin connector
+		if(file_exists($this->pipein)) unlink($this->pipein);
+		if(file_exists($this->pipeout)) unlink($this->pipeout);
+		passthru('/bin/mkfifo '.$this->pipein.' -m 666');
+		touch($this->pipeout);
+
+		if(!file_exists($this->pipein) || !file_exists($this->pipeout))
+		{
+			echo "Pipes were not created.";
+			return false;
+		}
+
+		while(true)
+		{
+			if($this->running()) break;
+			chdir(MINECRAFT_PATH);
+
+			pclose(popen(JAVA_PATH.'java -Xmx'.MAX_MEMORY.'M -Xms'.MIN_MEMORY.'M -jar '.MINECRAFT_BIN.' nogui >>'.$this->pipeout.' 0<>'.$this->pipein.' 2>&1 &', 'r'));
+			sleep(3);
+		}
+		return true;
+	}
+
+	public function bounce()
+	{
+		$this->send("say Server restart");
+		sleep(4);
+		while(!$this->running())
+		{
+			$this->stop();
+			sleep(5);
+		}
+		$this->run();
+	}
+
+	public function updatebin()
+	{
+		$this->send("say Updating minecraft server...");
 		sleep(2);
-	
-		//unlink( MINECRAFT_PATH."/backup/current-world.tar.gz" );
-		exec("/bin/tar czf ".MINECRAFT_PATH."/backup/".strtotime("now")."-world.tar.gz ".MINECRAFT_PATH."/world/");
+		$this->getbin();
+		$this->send("say Done.");
+		$this->bounce();
 	}
-	else
-		exec("/bin/tar czf ".MINECRAFT_PATH."/backup/".strtotime("now")."-world.tar.gz ".MINECRAFT_PATH."/world/");
 
-	if(minecraft_running())
+	public function getbin()
 	{
-		minecraft_send("save-on");
-		minecraft_send("say Complete.");
+		exec("wget http://www.minecraft.net/download/minecraft_server.jar -O ".MINECRAFT_PATH."/".MINECRAFT_BIN);
 	}
-}
 
-function minecraft_run()
-{
-	//Create stdin connector
-	if(file_exists('/tmp/minein')) unlink('/tmp/minein');
-	passthru('mkfifo /tmp/minein -m 666');
-
-	while(true)
+	public function console($command = "",$array = false)
 	{
-		if(minecraft_running()) break;
-		chdir(MINECRAFT_PATH);
-		pclose(popen(JAVA_PATH.'bin/java -Xmx4090M -Xms1024M -jar '.MINECRAFT_BIN.' nogui >>server.mon 0<>/tmp/minein 2>&1 &', 'r'));
-		sleep(3);
+		if($command != "")
+		{
+			//Send the command
+			$presize = filesize($this->pipeout);
+			$this->send($command);
+
+			//Wait for changes to be made
+			$timeout = 0;
+			$postsize = strlen(file_get_contents($this->pipeout));
+			while($postsize == $presize && $timeout <= 4)
+			{
+				$timeout++;
+				usleep(500000);
+				$postsize = strlen(file_get_contents($this->pipeout));
+			}
+
+			//Fetch the changes
+			$fp = fopen($this->pipeout, 'r');
+			fseek($fp,$presize);
+			$newlines = fgets($fp,$postsize - $presize);
+			fclose($fp);
+
+			return $newlines;
+		}
+		else
+		{
+			$log = array_reverse(explode("\n",file_get_contents($this->pipeout)));
+			$linenumber = 0;
+			foreach($log as $line)
+			{
+				$line = str_replace(chr(27)."[0m","",$line);
+				$line = str_replace(chr(31),"",$line);
+				$line = substr($line,1);
+
+				if(trim($line) == "")
+				{
+					//Don't pass blank lines
+				}
+				/*else if(preg_match("/^>(.*)/",$line,$matches))
+				{
+					//Don't echo commands (bukkit)
+				}
+				*/
+				else if(strpos($line,"Attempted to place a tile entity where there was no entity tile!") !== false)
+				{
+					//Wierd minecraft bug clogging up the log
+				}
+				else
+				{
+					$linenumber++;
+					if($linenumber > LOG_LINES) break;
+					$lineout[]=$line;
+				}
+			}
+			$lineout = array_reverse($lineout);
+
+			if(is_array($lineout))
+			{
+				if($array)
+					return $lineout;
+				else
+					return implode("\n",$lineout);
+			}
+			else
+				return false;
+		}
+
+	}
+
+	public function properties($properties = "")
+	{
+		if($properties == "")
+		{
+			if(file_exists(MINECRAFT_PATH."/server.properties"))
+			{
+				$settings = file_get_contents(MINECRAFT_PATH."/server.properties");
+				$settings = explode("\n",$settings);
+				foreach($settings as $line)
+				{
+					//Remove comments
+					$line = preg_replace("/\#.*/","",$line);
+
+					if(strpos($line,"=") !== false)
+					{
+						list($param,$value) = explode("=",$line);
+						$properties[$param]=$value;
+					}
+				}
+			}
+			return $properties;
+		}
+		else
+		{
+			var_dump($properties);
+
+			return;
+
+			$fhandle = fopen(MINECRAFT_PATH."/server.properties","w");
+			fwrite($fhandle, "#Minecraft server properties\n");
+			fwrite($fhandle, "#Generated by www.minecraftmonitor.com\n");
+			fwrite($fhandle, "#".date("Y-m-d H:i:s")."\n");
+			foreach($properties as $key=>$value)
+			{
+				fwrite($fhandle, $key."=".$value."\n");
+			}
+			fclose($fhandle);
+		}
 	}
 }
 
-function minecraft_bounce()
+class player
 {
-	minecraft_send("say Server restart");
-	sleep(2);
-	minecraft_stop();
-	sleep(1);
-	minecraft_backupworld();
-	sleep(1);
-	minecraft_run();
+	private $handle = "";
+
+	public function delete()
+	{
+		global $minecraft;
+		if($handle == "") return false;
+		$properties = $minecraft->properties();
+		unlink(MINECRAFT_PATH."/".$properties['level-name']."/players/".ereg_replace("[^A-Za-z0-9\_]", "", $handle ).".dat");
+	}
 }
-
-function minecraft_updatebin()
-{
-	minecraft_send("say Updating minecraft server...");
-	sleep(2);
-	minecraft_getbin();
-	minecraft_send("say Done.");
-	minecraft_bounce();
-
-}
-
-function minecraft_getbin()
-{
-	exec("wget http://www.minecraft.net/download/minecraft_server.jar -O ".MINECRAFT_PATH."/".MINECRAFT_BIN);
-}
-
 
 
 function recurse_rename($src,$dst){
 
-    $dir = opendir($src); 
-    @mkdir($dst); 
-    while(false !== ( $file = readdir($dir)) ) 
-    { 
-        if (( $file != '.' ) && ( $file != '..' )) 
-        { 
-            if ( is_dir($src . '/' . $file) ) { 
-                recurse_rename($src . '/' . $file,$dst . '/' . $file); 
-            } 
-            else { 
-                rename($src . '/' . $file,$dst . '/' . $file); 
-            } 
-        } 
-    } 
-    closedir($dir); 
+    $dir = opendir($src);
+    @mkdir($dst);
+    while(false !== ( $file = readdir($dir)) )
+    {
+        if (( $file != '.' ) && ( $file != '..' ))
+        {
+            if ( is_dir($src . '/' . $file) ) {
+                recurse_rename($src . '/' . $file,$dst . '/' . $file);
+            }
+            else {
+                rename($src . '/' . $file,$dst . '/' . $file);
+            }
+        }
+    }
+    closedir($dir);
 }
 
 
