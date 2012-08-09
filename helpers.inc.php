@@ -260,6 +260,7 @@ class minecraft
 		{
 			$log = array_reverse(explode("\n",file_get_contents($this->pipeout)));
 			$linenumber = 0;
+			$lineout = array();
 			foreach($log as $line)
 			{
 				$line = str_replace(chr(27)."[0m","",$line);
@@ -286,7 +287,9 @@ class minecraft
 					$lineout[]=$line;
 				}
 			}
-			$lineout = array_reverse($lineout);
+
+			if(is_array($lineout))
+				$lineout = array_reverse($lineout);
 
 			if(is_array($lineout))
 			{

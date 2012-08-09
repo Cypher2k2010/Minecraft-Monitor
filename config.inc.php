@@ -23,7 +23,7 @@
 	) die ('Loading this page directly will bring dishonor to your family.');
 
 	//Config String Start
-	$json_settings = '{"MAX_MEMORY":"2048","MIN_MEMORY":"1024","MINECRAFT_PATH":"/home/user/Games/mcserver","SERVER_PASS":"","LOG_LINES":40,"MINECRAFT_BIN":"minecraft-server.jar","TMP_PATH":"\/tmp","NETDEV_PATH":"\/proc\/net\/dev","CPU_PATH":"\/proc\/cpuinfo","LOAD_PATH":"\/proc\/loadavg","MONITOR_HANDLE":"","JAVA_PATH":""}';
+	$json_settings = '{"MAX_MEMORY":"2048","MIN_MEMORY":"1024","MINECRAFT_PATH":"/home/user/Games/mcserver","SERVER_PASS":"","LOG_LINES":40,"MINECRAFT_BIN":"Tekkit_test.jar","TMP_PATH":"\/tmp","NETDEV_PATH":"\/proc\/net\/dev","CPU_PATH":"\/proc\/cpuinfo","LOAD_PATH":"\/proc\/loadavg","MONITOR_HANDLE":"","JAVA_PATH":""}';
 	//Config String End
 
 	$json_array = json_decode($json_settings,true);

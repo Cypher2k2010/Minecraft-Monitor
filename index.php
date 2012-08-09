@@ -115,6 +115,7 @@
 						url: 'index.ajax.php',
 						data: {"action":"start"},
 						success: function(response) {
+							serverstate.running = true;
 							fetch_console();
 							fetch_state();
 						}

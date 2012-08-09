@@ -2,22 +2,22 @@
 	date_default_timezone_set("UTC");
 	session_start();
 
-	$cli_colour['black'] = '0;30';
-	$cli_colour['dark_gray'] = '1;30';
-	$cli_colour['blue'] = '0;34';
-	$cli_colour['light_blue'] = '1;34';
-	$cli_colour['green'] = '0;32';
-	$cli_colour['light_green'] = '1;32';
-	$cli_colour['cyan'] = '0;36';
-	$cli_colour['light_cyan'] = '1;36';
-	$cli_colour['red'] = '0;31';
-	$cli_colour['light_red'] = '1;31';
-	$cli_colour['purple'] = '0;35';
-	$cli_colour['light_purple'] = '1;35';
-	$cli_colour['brown'] = '0;33';
-	$cli_colour['yellow'] = '1;33';
-	$cli_colour['light_gray'] = '0;37';
-	$cli_colour['white'] = '1;37';
+	$cli_colour['black'] = '30;0';
+	$cli_colour['dark_gray'] = '30;1';
+	$cli_colour['blue'] = '34;0';
+	$cli_colour['light_blue'] = '34;1';
+	$cli_colour['green'] = '32;0';
+	$cli_colour['light_green'] = '32;1';
+	$cli_colour['cyan'] = '36;0';
+	$cli_colour['light_cyan'] = '36;1';
+	$cli_colour['red'] = '31;0';
+	$cli_colour['light_red'] = '31;1';
+	$cli_colour['purple'] = '35;0';
+	$cli_colour['light_purple'] = '35;1';
+	$cli_colour['brown'] = '33;0';
+	$cli_colour['yellow'] = '33;1';
+	$cli_colour['light_gray'] = '37;0';
+	$cli_colour['white'] = '37;1';
 	$cli_colour_code = array_flip($cli_colour);
 	//	"\033[" . $this->foreground_colors[$foreground_color] . "m";
 
@@ -37,6 +37,25 @@
 				$console = $minecraft->console("",true);
 				foreach($console as $line)
 				{
+
+					$matchcount = preg_match_all("/"."\033"."\[(\d+\;\d+)m/",$line,$match);
+
+					if($matchcount > 0)
+					{
+
+						if(isset($cli_colour_code[$match[1][0]]))
+						{
+							$line = str_replace($match[0][0],"<span class='".$cli_colour_code[$match[1][0]]."'>" ,$line)."</span>";
+						}
+						else
+						{
+							$line = str_replace($match[0][0],$match[1][0],$line);
+						}
+
+						//$line = nl2br(print_r($match,true));
+
+					}
+
 					echo "<div class='line'>".$line."</div>";
 				}
 			break;

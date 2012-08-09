@@ -166,6 +166,12 @@ ol {list-style-type: upper-roman;}
 	color: #000000;
 }
 
+#console .light_purple
+{
+	color: #ff00ff;
+}
+
+
 div.pagebox
 {
 	border: 6px solid #EBEBEB;
