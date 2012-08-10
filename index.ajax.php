@@ -2,30 +2,40 @@
 	date_default_timezone_set("UTC");
 	session_start();
 
-	$cli_colour['black'] = '30;0';
-	$cli_colour['dark_gray'] = '30;1';
-	$cli_colour['blue'] = '34;0';
-	$cli_colour['light_blue'] = '34;1';
-	$cli_colour['green'] = '32;0';
-	$cli_colour['light_green'] = '32;1';
-	$cli_colour['cyan'] = '36;0';
-	$cli_colour['light_cyan'] = '36;1';
-	$cli_colour['red'] = '31;0';
-	$cli_colour['light_red'] = '31;1';
-	$cli_colour['purple'] = '35;0';
-	$cli_colour['light_purple'] = '35;1';
-	$cli_colour['brown'] = '33;0';
-	$cli_colour['yellow'] = '33;1';
-	$cli_colour['light_gray'] = '37;0';
-	$cli_colour['white'] = '37;1';
-	$cli_colour_code = array_flip($cli_colour);
-	//	"\033[" . $this->foreground_colors[$foreground_color] . "m";
-
-	//ob_start();
 	include("config.inc.php");
-	//ob_end_clean();
-	include("helpers.inc.php");
+	include("consolefilter/filter.inc.php");
+
+	include("objects.inc.php");
 	include("data.inc.php");
+
+	function human_filesize($size)
+	{
+		$mod = 1024;
+		$units = explode(' ','B KB MB GB TB PB');
+		for ($i = 0; $size > $mod; $i++) {
+			$size /= $mod;
+		}
+		return round($size, 2) . $units[$i];
+	}
+
+	function recurse_rename($src,$dst)
+	{
+		$dir = opendir($src);
+		@mkdir($dst);
+		while(false !== ( $file = readdir($dir)) )
+		{
+			if (( $file != '.' ) && ( $file != '..' ))
+			{
+				if ( is_dir($src . '/' . $file) ) {
+					recurse_rename($src . '/' . $file,$dst . '/' . $file);
+				}
+				else {
+					rename($src . '/' . $file,$dst . '/' . $file);
+				}
+			}
+		}
+		closedir($dir);
+	}
 
 	$minecraft = new minecraft();
 
@@ -34,39 +44,69 @@
 		switch($_GET['action'])
 		{
 			case "console":
+				$output['console'] = "";
 				$console = $minecraft->console("",true);
-				foreach($console as $line)
-				{
-
-					$matchcount = preg_match_all("/"."\033"."\[(\d+\;\d+)m/",$line,$match);
-
-					if($matchcount > 0)
+				if(is_array($console))
+					foreach($console as $line)
 					{
+						$opentags = 0;
+						$line = scrubline($line);
+						$line = htmlspecialchars($line);
+						$line = cli_colour($line);
 
-						if(isset($cli_colour_code[$match[1][0]]))
-						{
-							$line = str_replace($match[0][0],"<span class='".$cli_colour_code[$match[1][0]]."'>" ,$line)."</span>";
-						}
-						else
-						{
-							$line = str_replace($match[0][0],$match[1][0],$line);
-						}
-
-						//$line = nl2br(print_r($match,true));
-
+						$output['console'] .= "<div class='line'>".$line."</div>";
 					}
 
-					echo "<div class='line'>".$line."</div>";
-				}
+				$output['md5'] = md5($output['console']);
+
+				if(isset($_GET['md5']) && $_GET['md5'] == $output['md5'])
+					unset($output['console']);
+
+				echo json_encode($output);
+
 			break;
 
 			case "send":
 				if($_GET['c'] != "")
 				{
-					$console = $minecraft->console($_GET['c']);
-					echo "<div class='line new'>".$console."</div>";
+					$line = $minecraft->console($_GET['c']);
+
+					$line = htmlspecialchars($line);
+					$line = preg_replace("/^\n/","",$line);
+					$line = cli_colour($line);
+
+					echo "<div class='line new'>".$line."</div>";
 				}
 			break;
+
+
+			case "playerop":
+				$minecraft->console("op ".$_GET['p']);
+			break;
+
+			case "playerdeop":
+				$minecraft->console("deop ".$_GET['p']);
+			break;
+
+
+			case "playerban":
+				$minecraft->console("ban ".$_GET['p']);
+			break;
+
+			case "playerpardon":
+				$minecraft->console("pardon ".$_GET['p']);
+			break;
+
+			case "playerkick":
+				$minecraft->console("kick ".$_GET['p']);
+			break;
+
+			case "playerdelete":
+				$player = new player($_GET['p']);
+				$player->delete();
+				unset($player);
+			break;
+
 
 			case "start":
 				$minecraft->run();
@@ -76,10 +116,27 @@
 				$minecraft->stop();
 			break;
 
+			case "bounce":
+				$minecraft->bounce();
+			break;
+
 			case "statearray":
 
 				$properties = $minecraft->properties();
 				unset($json_array);
+				$result = $minecraft->console("list",false,true);
+
+				if(preg_match("/\[INFO\] Connected players: (.*)/",$result,$match) == 1)
+				{
+					foreach(explode(",",strtolower(no_colour($match[1]))) as $playername)
+					{
+						$playername = explode(".",$playername);
+						$playername = array_pop($playername);
+						$connected[] = $playername;
+					}
+				}
+				else
+					$connected = array();
 
 				if(isset($properties['level-name']))
 				if(file_exists(MINECRAFT_PATH."/ops.txt"))
@@ -96,9 +153,11 @@
 						$playername = $playername[0];
 						$lastlogon = filemtime($filepath);
 
+						$json_array['player'][$playername]['name'] = $playername;
 						$json_array['player'][$playername]['logtime'] = $lastlogon;
 						if(is_array($ops) && in_array(strtolower($playername),$ops)) $json_array['player'][$playername]['op'] = "true";
 						if(is_array($banned) && in_array(strtolower($playername),$banned)) $json_array['player'][$playername]['banned'] = "true";
+						if(is_array($connected) && in_array(strtolower($playername),$connected)) $json_array['player'][$playername]['connected'] = "true";
 					}
 				}
 
@@ -113,8 +172,14 @@
 					{
 						$rxbytes = $devset2[$devname]['rxbytes'] - $devset1[$devname]['rxbytes'];
 						$txbytes = $devset2[$devname]['txbytes'] - $devset1[$devname]['txbytes'];
-						$json_array['bandwidth'][$devname]['tx']=$txbytes;
-						$json_array['bandwidth'][$devname]['rx']=$rxbytes;
+
+						$devpack['tx']=$txbytes;
+						$devpack['rx']=$rxbytes;
+						$devpack['stx']=human_filesize($txbytes);
+						$devpack['srx']=human_filesize($rxbytes);
+						$devpack['name']=$devname;
+
+						$json_array['bandwidth'][]=$devpack;
 					}
 				}
 
@@ -156,7 +221,6 @@
 						$json_array['ps_res'] = $psout;
 				}
 
-
 				//Encode into JSON webservice.
 				if(isset($minecraft_pid))
 					$json_array['running'] = true;
@@ -167,6 +231,50 @@
 				if(is_array($json_array)) echo json_encode($json_array);
 
 			break;
+
+
+			case "renderplayer" :
+
+				$name = $_GET['pn']['name'];
+
+				?>
+					<div class="player <?php if(isset($_GET['pn']['connected'])) echo'connected'; ?> " player="<?php echo $name;?>">
+						<div class="skin"><img src="skin.php?name=<?php echo $name;?>"></div>
+						<div class="info">
+							<div><?php echo $name;?></div>
+							<div class="control">
+								<?php
+								if(isset($_GET['pn']['op']))
+								{
+									?><a href="javascript:player_deop('<?php echo $name;?>');">deop</a> | <?php
+								}
+								else
+								{
+									?><a href="javascript:player_op('<?php echo $name;?>');">op</a> | <?php
+								}
+
+								if(isset($_GET['pn']['banned']))
+								{
+									?><a href="javascript:player_pardon('<?php echo $name;?>');">pardon</a> | <?php
+								}
+								else
+								{
+									?><a href="javascript:player_ban('<?php echo $name;?>');">ban</a> | <?php
+								}
+
+								if(isset($_GET['pn']['connected']))
+								{
+									?><a href="javascript:player_kick('<?php echo $name;?>');">kick</a> | <?php
+								}
+								?>
+								<a href="javascript:player_delete('<?php echo $name;?>');">del</a>
+							</div>
+						</div>
+						<div style="clear:both;"></div>
+					</div>
+				<?php
+			break;
+
 
 		}
 

@@ -8,147 +8,24 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="robots" content="index,follow">
 		<title>proto</title>
-		<link href="style.css" rel="stylesheet">
-		<script src="jquery-1.7.1.min.js" type="text/javascript"></script>
-
-		<script type="text/javascript">
-
-			var consoletimer = 0;
-			var consolerefresh = 2000;
-			var statetimer = 0;
-			var staterefresh = 6000;
-			var serverstate = {"running":true};
-
-
-			function fetch_console()
-			{
-				//Update less often if the server isn't running.
-				if(!serverstate.running)
-					factor = 4;
-				else
-					factor = 1;
-
-				self.clearTimeout(consoletimer);
-
-				$.ajax({
-					url: 'index.ajax.php',
-					data: {"action":"console"},
-					success: function(response) {
-						$('#console').html(response);
-					}
-				});
-				consoletimer = self.setTimeout(fetch_console,consolerefresh*factor);
-			}
-
-			function fetch_state()
-			{
-				//Update less often if the server isn't running.
-				if(!serverstate.running)
-					factor = 4;
-				else
-					factor = 1;
-
-				self.clearTimeout(statetimer);
-
-				$.ajax({
-					url: 'index.ajax.php',
-					data: {"action":"statearray"},
-					dataType: "json",
-					success: function(response) {
-						serverstate = response;
-
-						if(response.running)
-						{
-							$(".status").html("started");
-							$(".status").addClass("running");
-							$(".status").removeClass("stopped");
-						}
-						else
-						{
-							$(".status").html("stopped");
-							$(".status").removeClass("running");
-							$(".status").addClass("stopped");
-						}
-					}
-				});
-
-				statetimer = self.setTimeout(fetch_state,staterefresh*factor);
-			}
-
-			function send_console(command)
-			{
-				self.clearTimeout(consoletimer);
-				$.ajax({
-					type: "GET",
-					url: 'index.ajax.php',
-					data: {"action":"send","c":command},
-					success: function(response) {
-						$('#console').append(response);
-						fetch_state();
-					}
-				});
-				consoletimer = self.setTimeout(fetch_console,consolerefresh);
-			}
-
-			$(document).ready(function(){
-
-				$("#sendline").click(function(){
-					send_console($("#line").val());
-					$("#line").select();
-				});
-
-				$('#line').keyup(function(event) {
-				  if (event.which == 13) {
-					$("#sendline").click();
-				  }
-				}).keydown(function(event) {
-				  if (event.which == 13) {
-					event.preventDefault();
-				  }
-				});
-
-
-
-				$("#startserver").click(function(){
-					$.ajax({
-						type: "GET",
-						url: 'index.ajax.php',
-						data: {"action":"start"},
-						success: function(response) {
-							serverstate.running = true;
-							fetch_console();
-							fetch_state();
-						}
-					});
-				});
-
-				$("#stopserver").click(function(){
-					$.ajax({
-						type: "GET",
-						url: 'index.ajax.php',
-						data: {"action":"stop"},
-						success: function(response) {
-							fetch_console();
-							fetch_state();
-						}
-					});
-				});
-
-
-
-				fetch_console();
-				fetch_state();
-			});
-
-		</script>
-
+		<link href="style/index.css" rel="stylesheet">
+		<script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
+		<script src="js/index.js" type="text/javascript"></script>
 
 	</head>
 	<body>
 		<div class="container">
-			<div class="menu">
-			</div>
 			<div class="content">
+				<div class="menu">
+
+					<ul>
+						<li><a href="configure.php">Configure</a></li>
+						<li><a href="server.php">Server Properties</a></li>
+						<li><a href="index.php?logout">Log out</a></li>
+						<div style="clear:both;"></div>
+					</ul>
+
+				</div>
 
 				<div id="console"></div>
 
@@ -159,25 +36,82 @@
 						<div >
 							<input id="startserver" type="button" value="Start">
 							<input id="stopserver" type="button" value="Stop">
+							<input id="bounceserver" type="button" value="Restart">
 						</div>
 
 					</div>
-
 					<div id="functions">
 						<div>
-							<input id="line" style="width:500px" type="text"><input type="button" id="sendline" value="send">
+							<input id="line" style="width:500px;margin-right:10px;" type="text"><input type="button" id="sendline" value="send">
+						</div>
+						<div style="margin-top:5px;">
+							<div class="statbox">
+								<div>LOAD</div>
+								<div id="sys_cpu">0</div>
+								<div style="clear:both;"></div>
+							</div>
+
+							<div class="statbox">
+								<div>MC CPU</div>
+								<div id="jav_cpu">0</div>
+								<div style="clear:both;"></div>
+							</div>
+
+							<div class="statbox">
+								<div>MEM</div>
+								<div id="sys_mem">0</div>
+								<div style="clear:both;"></div>
+							</div>
+
+							<div class="statbox">
+								<div>MC MEM</div>
+								<div id="jav_mem">0</div>
+								<div style="clear:both;"></div>
+							</div>
+							<div style="clear:both;"></div>
+						</div>
+
+						<div style="margin-top:5px;">
+							<div class="statbox">
+								<div>TX</div>
+								<div id="eth_tx">0</div>
+								<div style="clear:both;"></div>
+							</div>
+
+							<div class="statbox">
+								<div>RX</div>
+								<div id="eth_rx">0</div>
+								<div style="clear:both;"></div>
+							</div>
+							<div style="clear:both;"></div>
 						</div>
 					</div>
 					<div style="clear:both;"></div>
 				</div>
-<?php
-	//ob_start();
-	include("config.inc.php");
-	//ob_end_clean();
-	include("helpers.inc.php");
 
-	$minecraft = new minecraft();
-?>
+				<div id="players">
+					<div id="player_control">
+					</div>
+
+					<div id="ops">
+						<h3>Ops</h3>
+						<div class="list">
+						</div>
+						<div style="clear:both;"></div>
+					</div>
+					<div id="other">
+						<h3>Players</h3>
+						<div class="list"></div>
+						<div style="clear:both;"></div>
+					</div>
+					<div id="banned">
+						<h3>Banned</h3>
+						<div class="list"></div>
+						<div style="clear:both;"></div>
+					</div>
+					<div style="clear:both;"></div>
+				</div>
+
 			</div>
 		</div>
 

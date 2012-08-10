@@ -1,0 +1,480 @@
+@import"reset.css";
+
+body
+{
+	background-color: #ABABAB;
+	color: #000000;
+    font-family: Tahoma,Arial,Verdana,Helvetica sans-serif;
+    font-size: 13px;
+}
+
+p
+{
+	margin: 10px;
+}
+
+h1
+{
+	margin: 20px;
+	font-size: 3em;
+}
+
+h3
+{
+	margin: 10px;
+}
+
+
+ul
+{
+	padding: 0 0 0 25px;
+	list-style-type: circle;
+}
+
+ol {list-style-type: upper-roman;}
+
+.container
+{
+}
+
+.content
+{
+	width: 910px;
+	margin: 0 auto;
+	clear:both;
+	-moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #E0E0E0 #D4D4D4 #BBBBBB;
+    border-style: solid;
+    border-width: 1px;
+    background-color: #FFFFFF;
+
+    border-radius: 6px 6px 6px 6px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    padding: 0 0 20px 0;
+	min-height: 600px;
+}
+
+.menu
+{
+	background-image: url('mmlogo.jpg');
+	background-repeat:no-repeat;
+	background-position: top right;
+	height: 48px;
+}
+
+.menu ul
+{
+	position:relative;
+	top: -1px;
+	left: -1px;
+	list-style-type: none;
+	padding:0;
+}
+
+.menu > ul > li
+{
+	cursor: pointer;
+	padding: 2px 2px;
+	padding: 10px;
+	text-align:center;
+	float: left;
+	border-right: 2px solid #ffffff;
+	background-color: #888888;
+	box-shadow: inset -3px -3px 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.menu > ul > li a
+{
+	font-weight: bold;
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.menu > ul > li:hover
+{
+	background-color: #aaaaaa;
+}
+
+
+.menu > ul > li:first-child
+{
+    border-radius: 6px 0 0 0;
+}
+
+.menu > ul > li:last-of-type
+{
+    border-radius: 0 0 15px 0;
+}
+
+
+.page
+{
+	padding: 10px;
+}
+
+
+#controls
+{
+	padding: 5px 15px 10px 15px;
+	box-shadow: 0px 5px 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+#controls > #system
+{
+	float:left;
+	width: 200px;
+}
+
+.statbox
+{
+	font-family: Courier New;
+    float:left;
+	height: 20px;
+	width: 150px;
+	border: 1px solid #888888;
+}
+
+.statbox>div
+{
+	float:left;
+	height: 16px;
+	padding-top: 4px;
+	text-align: center;
+}
+
+.statbox>div:nth-of-type(1)
+{
+	color: #ffffff;
+	font-weight: bold;
+	width: 40%;
+	background-color: #888888;
+}
+
+.statbox>div:nth-of-type(2)
+{
+	width: 60%;
+	background-color: #ffffff;
+}
+
+
+#system > div.status
+{
+	padding: 15px 0;
+	text-transform:uppercase;
+	text-align: center;
+	font-weight: bold;
+	margin: 0 0 10px 0;
+	border: 1px solid #bbbbbb;
+    border-radius: 6px 6px 6px 6px;
+}
+
+#system > div.running
+{
+	background-color:#33ee33;
+	border: 1px solid #00bb00;
+	box-shadow: inset 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+}
+
+#system > div.stopped
+{
+	background-color:#ee3333;
+	border: 1px solid #bb0000;
+	box-shadow: inset 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+}
+
+#system > div.working
+{
+	background-color:#eeee33;
+	border: 1px solid #bbbb00;
+	box-shadow: inset 0px 0px 10px 3px rgba(0, 0, 0, 0.2);
+}
+
+
+#controls > #functions
+{
+	float:left;
+	width: 650px;
+	padding: 0 0 0 10px;
+}
+
+#players h3
+{
+	color: #666666;
+	padding: 0 0 10px 0;
+	margin: 0;
+}
+
+#players
+{
+	padding: 15px;
+	width: 800px;
+	margin: 0 auto;
+}
+
+#players>div
+{
+	padding: 5px 5px 0 5px;
+}
+
+div.player
+{
+	float:left;
+	background-color: #eeeeee;
+	padding:5px;
+	margin: 0 0 5px 0;
+	width: 140px;
+}
+
+div.player.connected
+{
+	background-color: #88eeee;
+}
+
+div.player>.skin
+{
+	float:left;
+	width: 32px;
+	height: 32px;
+	background-color:#ffffff;
+}
+
+div.player>.info
+{
+	float:left;
+	width: 100px;
+	padding: 0 0 0 5px;
+	font-size: 0.8em;
+	font-weight: bold;
+    font-family: Courier New;
+}
+
+div.player>.info>.control
+{
+	margin-top: 5px;
+}
+
+#ops
+{
+	float:left;
+	width: 150px;
+	hight: 300px;
+}
+
+#other
+{
+	float:left;
+	width: 450px;
+	hight: 300px;
+}
+
+#banned
+{
+	float:left;
+	width: 150px;
+	hight: 300px;
+}
+
+
+#console
+{
+	background-color: #000000;
+    color: #DDDDDD;
+	margin: 15px auto;
+    font-family: Courier New;
+    font-size: x-small;
+    height: 300px;
+    overflow: auto;
+    padding: 5px;
+    width: 900px;
+}
+#console div.line:hover
+{
+	background-color:#dddddd;
+	color: #000000;
+}
+
+#console .black 		{ color: #000000; background-color: #888888; }
+#console .dark_gray 	{ color: #888888; }
+#console .light_gray 	{ color: #bbbbbb; }
+#console .white 		{ color: #ffffff; }
+
+#console .blue 			{ color: #000088; }
+#console .light_blue 	{ color: #0000ff; }
+
+#console .green 		{ color: #008800; }
+#console .light_green 	{ color: #00ff00; }
+
+#console .cyan 			{ color: #008888; }
+#console .light_cyan 	{ color: #00ffff; }
+
+#console .red 			{ color: #880000; }
+#console .light_red 	{ color: #ff0000; }
+
+#console .brown 		{ color: #663300; }
+#console .light_brown 	{ color: #ffcc00; }
+#console .yellow 		{ color: #888800; }
+#console .light_yellow 	{ color: #ffff00; }
+
+#console .purple 		{ color: #880088; }
+#console .light_purple 	{ color: #ff00ff; }
+
+
+
+div.pagebox
+{
+	border: 6px solid #EBEBEB;
+    border-radius: 6px 6px 6px 6px;
+    margin-bottom: 12px;
+    margin-top: 10px;
+}
+
+div.pagebox div.body
+{
+	-moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #E0E0E0;
+    border-style: solid;
+    border-width: 1px 1px 0;
+    color: #595959;
+    margin: 0;
+    padding: 10px 14px;
+}
+
+div.pagebox p
+{
+    font-size: 13px;
+}
+
+div.boxload
+{
+	color: #595959;
+	font-size: 1.5em;
+	line-height: 40px;
+	text-align: center;
+	width: 128px;
+	height: 168px;
+	margin: auto auto;
+}
+
+div.pageheading
+{
+	background-color: #F9F9F9;
+	background-position: left 2px;
+	border-bottom: 1px solid #DFDFDF;
+	clear: both;
+	color: #595959;
+	font-size: 18px;
+	margin: 17px 0 10px;
+	padding: 10px;
+}
+
+input.pagebutton
+{
+	border: 1px solid #DFDFDF;
+	border-radius: 14px 14px 14px 14px;
+	color: #444444;
+	display: inline-block;
+	height: 25px;
+	line-height: 11px;
+	margin: 0;
+	padding: 2px 15px 3px;
+	text-shadow: 0 1px 0 #DFDFDF;
+}
+
+input.pagebutton:hover
+{
+}
+
+input.pagebutton:active
+{
+	text-shadow: none;
+}
+
+
+.pagedialog
+{
+	width: 70%;
+	margin: 50px auto;
+    background-color: #F9F9F9;
+    border-color: #E0E0E0 #D4D4D4 #BBBBBB;
+    border-radius: 12px 12px 12px 12px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25)
+}
+
+.pagedialog .head
+{
+	padding: 10px 10px 10px 10px;
+    border-bottom: 1px solid #DFDFDF;
+}
+
+.pagedialog .message
+{
+    background-color: #ffffff;
+	padding: 10px 10px 30px 10px;
+}
+
+.pagedialog .control
+{
+	background-color: #ffffff;
+	padding: 15px 20px;
+	box-shadow: inset 0 8px 6px -6px rgba(0, 0, 0, 0.25);
+    border-radius: 0 0 12px 12px;
+	text-align: right;
+}
+
+
+
+input[type=text],input[type=password],textarea
+{
+	border: 1px solid #DFDFDF;
+	border-radius: 6px 6px 6px 6px;
+	padding: 6px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.25);
+}
+
+.helptext
+{
+    font-size: 10px;
+	color: #aaaaaa;
+	padding: 4px 0 0 170px;
+}
+
+.formrow
+{
+	margin: 10px 0;
+}
+
+label
+{
+    clear: left;
+    color: #5F5F5F;
+    float: left;
+    margin-left: 0px;
+    margin-right: 10px;
+    padding: 1px 18px 0 0;
+    text-align: right;
+    width: 160px;
+	height: 30px;
+	line-height: 30px;
+}
+
+div.pagerow
+{
+	width: 800px;
+	margin: 10px 20px;
+    background-color: #F9F9F9;
+    border-color: #E0E0E0 #D4D4D4 #BBBBBB;
+    border-radius: 12px 12px 12px 12px;
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 0 4px 7px rgba(0, 0, 0, 0.25)
+}

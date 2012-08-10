@@ -1,0 +1,17 @@
+{	"MAX_MEMORY":"2048",
+	"MIN_MEMORY":"1024",
+
+	"MINECRAFT_PATH":"/home/user/Games/mcserver",
+	"MINECRAFT_BIN":"Tekkit_test.jar",
+
+	"PIPE_PATH":"/home/user",
+
+	"NETDEV_PATH":"\/proc\/net\/dev",
+	"CPU_PATH":"\/proc\/cpuinfo",
+	"LOAD_PATH":"\/proc\/loadavg",
+	"JAVA_PATH":"",
+
+	"API_PASSWORD":"",
+	"API_HANDLE":"",
+	"LOG_LINES":100
+}
