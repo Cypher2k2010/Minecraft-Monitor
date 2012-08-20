@@ -88,7 +88,6 @@
 				$minecraft->console("deop ".$_GET['p']);
 			break;
 
-
 			case "playerban":
 				$minecraft->console("ban ".$_GET['p']);
 			break;
@@ -170,16 +169,19 @@
 
 					foreach($devset1 as $devname => $dev)
 					{
-						$rxbytes = $devset2[$devname]['rxbytes'] - $devset1[$devname]['rxbytes'];
-						$txbytes = $devset2[$devname]['txbytes'] - $devset1[$devname]['txbytes'];
+						if(config::get('NETDEV') == $devname)
+						{
+							$rxbytes = $devset2[$devname]['rxbytes'] - $devset1[$devname]['rxbytes'];
+							$txbytes = $devset2[$devname]['txbytes'] - $devset1[$devname]['txbytes'];
 
-						$devpack['tx']=$txbytes;
-						$devpack['rx']=$rxbytes;
-						$devpack['stx']=human_filesize($txbytes);
-						$devpack['srx']=human_filesize($rxbytes);
-						$devpack['name']=$devname;
+							$devpack['tx']=$txbytes;
+							$devpack['rx']=$rxbytes;
+							$devpack['stx']=human_filesize($txbytes);
+							$devpack['srx']=human_filesize($rxbytes);
+							$devpack['name']=$devname;
 
-						$json_array['bandwidth'][]=$devpack;
+							$json_array['bandwidth'][]=$devpack;
+						}
 					}
 				}
 

@@ -455,6 +455,20 @@ input.pagebutton:active
 	width: 400px;
 }
 
+.pagedialog div.row .error
+{
+	font-weight: bold;
+	color: #f44;
+	padding: 10px;
+}
+
+.pagedialog div.row .notice
+{
+	font-weight: bold;
+	color: #44f;
+	padding: 10px;
+}
+
 .pagedialog div.row .info
 {
 	float: left;

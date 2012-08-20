@@ -2,7 +2,6 @@
 	session_start();
 	include("include/config.inc.php");
 	include("include/data.inc.php");
-
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -17,6 +16,18 @@
 	</head>
 	<body>
 		<div class="container">
+
+			<?php
+				if(isset($_POST) && count($_POST) > 0)
+				{
+					foreach($_POST as $key=>$value)
+					{
+						config::set($key,$value);
+					}
+					config::write();
+				}
+			?>
+
 			<div class="content">
 				<div class="menu">
 				<?php include("include/menu.inc.php");?>
@@ -24,6 +35,7 @@
 
 
 				<div id="config">
+				<form method="POST">
 					<h2>Minecraft Monitor Config</h2>
 
 					<div class="monitor pagedialog">
@@ -32,7 +44,7 @@
 						<div class="row">
 							<div class="label">WAN Interface:</div>
 							<div class="control">
-								<select name="eth">
+								<select name="NETDEV">
 								<?php
 									$devset = dev2array(file_get_contents(config::get('NETDEV_PATH')));
 									foreach($devset as $devname=>$devdata)
@@ -79,7 +91,10 @@
 
 						<div class="row">
 							<div class="label">Minecraft Location: </div>
-							<div class="control"><input type="text" name="MINECRAFT_PATH" value="<?php echo config::get('MINECRAFT_PATH'); ?>" style="width: 360px;"></div>
+							<div class="control">
+								<input type="text" name="MINECRAFT_PATH" value="<?php echo config::get('MINECRAFT_PATH'); ?>" style="width: 360px;">
+								<div class="error" id="MINECRAFT_PATH"></div>
+							</div>
 							<div class="info">
 								<p>The folder where the mincraft files are located. This is the folder with the world folders, the JAR file and the server.properties file.</p>
 							</div>
@@ -115,8 +130,24 @@
 						<h3>System</h3>
 
 						<div class="row">
+							<div class="label">Java path: </div>
+							<div class="control">
+								<input type="text" name="JAVA_PATH" value="<?php echo config::get('JAVA_PATH'); ?>" style="width: 360px;">
+								<div class="notice" id="JAVA_PATH"></div>
+							</div>
+							<div class="info">
+								<p>If your copy of java is not in a standard location, or you have multiple versions of Java installed, you can set this to where the java binary is located.</p>
+								<p>Leave it blank to use the system copy of java.</p>
+							</div>
+							<div style="clear:both;"></div>
+						</div>
+
+						<div class="row">
 							<div class="label">Pipe location: </div>
-							<div class="control"><input type="text" name="PIPE_PATH" value="<?php echo config::get('PIPE_PATH'); ?>" style="width: 360px;"></div>
+							<div class="control">
+								<input type="text" name="PIPE_PATH" value="<?php echo config::get('PIPE_PATH'); ?>" style="width: 360px;">
+								<div class="error" id="PIPE_PATH"></div>
+							</div>
 							<div class="info">
 								<p>This is where the IO redirection files are stored. It is usually OK to put them in your minecraft path, however on some systems this can cause problems and you might need to move them.</p>
 							</div>
@@ -125,7 +156,10 @@
 
 						<div class="row">
 							<div class="label">Network device: </div>
-							<div class="control"><input type="text" name="NETDEV_PATH" value="<?php echo config::get('NETDEV_PATH'); ?>" style="width: 200px;"></div>
+							<div class="control">
+								<input type="text" name="NETDEV_PATH" value="<?php echo config::get('NETDEV_PATH'); ?>" style="width: 200px;">
+								<div class="error" id="NETDEV_PATH"></div>
+							</div>
 							<div class="info">
 								<p>The location in the proc filesystem where the NET devices can be found.<br>It's recommended to leave this as default, but on some distributions of linux/unix these are in different places.</p>
 							</div>
@@ -134,7 +168,10 @@
 
 						<div class="row">
 							<div class="label">CPU Information: </div>
-							<div class="control"><input type="text" name="CPU_PATH" value="<?php echo config::get('CPU_PATH'); ?>" style="width: 200px;"></div>
+							<div class="control">
+								<input type="text" name="CPU_PATH" value="<?php echo config::get('CPU_PATH'); ?>" style="width: 200px;">
+								<div class="error" id="CPU_PATH"></div>
+							</div>
 							<div class="info">
 								<p>The location in the proc filesystem where the CPU details can be found.<br>It's recommended to leave this as default.</p>
 							</div>
@@ -143,7 +180,10 @@
 
 						<div class="row">
 							<div class="label">Load Averages: </div>
-							<div class="control"><input type="text" name="LOAD_PATH" value="<?php echo config::get('LOAD_PATH'); ?>" style="width: 200px;"></div>
+							<div class="control">
+								<input type="text" name="LOAD_PATH" value="<?php echo config::get('LOAD_PATH'); ?>" style="width: 200px;">
+								<div class="error" id="LOAD_PATH"></div>
+							</div>
 							<div class="info">
 								<p>The location in the proc filesystem where the load averages can be found.<br>It's recommended to leave this as default.</p>
 							</div>
@@ -180,6 +220,12 @@
 							<div style="clear:both;"></div>
 						</div>
 					</div>
+
+
+					<div class="pagedialog" style="padding: 10px 0 10px 10px;">
+						<input type="submit" value="Save All">
+					</div>
+				</form>
 				</div>
 
 			</div>
