@@ -15,27 +15,24 @@
 	Global configuration for webservices.
 	*/
 
-	//Security, ignore this line
-	if (
-	!empty($_SERVER['SCRIPT_FILENAME']) && 'index.ajax.php' != basename($_SERVER['SCRIPT_FILENAME'])
-										&& 'comm.php' != basename($_SERVER['SCRIPT_FILENAME'])
-										&& 'index.php' != basename($_SERVER['SCRIPT_FILENAME'])
-	) die ('Loading this page directly will bring dishonor to your family.');
-
-	//Config String Start
-	$json_settings = file_get_contents("config.json");
-	//Config String End
-
-	$json_array = json_decode($json_settings,true);
-	foreach($json_array as $key => $value)
+	class config
 	{
-		switch($key)
-		{
-			default:
-				define($key,$value);
-			break;
-		}
+		private static $data = array();
 
+		public static function get($key)
+		{
+			if(count(self::$data) == 0)
+			{
+				self::$data = json_decode(file_get_contents("config.json"),true);
+			}
+
+			if(isset(self::$data[$key]))
+				return self::$data[$key];
+			else
+				return false;
+		}
 	}
+
+
 
 ?>

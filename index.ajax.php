@@ -2,11 +2,11 @@
 	date_default_timezone_set("UTC");
 	session_start();
 
-	include("config.inc.php");
+	include("include/config.inc.php");
 	include("consolefilter/filter.inc.php");
 
-	include("objects.inc.php");
-	include("data.inc.php");
+	include("include/objects.inc.php");
+	include("include/data.inc.php");
 
 	function human_filesize($size)
 	{
@@ -15,7 +15,7 @@
 		for ($i = 0; $size > $mod; $i++) {
 			$size /= $mod;
 		}
-		return round($size, 2) . $units[$i];
+		return round($size, 2).$units[$i];
 	}
 
 	function recurse_rename($src,$dst)
@@ -139,12 +139,12 @@
 					$connected = array();
 
 				if(isset($properties['level-name']))
-				if(file_exists(MINECRAFT_PATH."/ops.txt"))
+				if(file_exists(config::get('MINECRAFT_PATH')."/ops.txt"))
 				{
 					//Get family.
-					$ops = explode("\n",file_get_contents(MINECRAFT_PATH."/ops.txt"));
-					$banned = explode("\n",file_get_contents(MINECRAFT_PATH."/banned-players.txt"));
-					foreach (glob(MINECRAFT_PATH."/".$properties['level-name']."/players/*.dat") as $filepath)
+					$ops = explode("\n",file_get_contents(config::get('MINECRAFT_PATH')."/ops.txt"));
+					$banned = explode("\n",file_get_contents(config::get('MINECRAFT_PATH')."/banned-players.txt"));
+					foreach (glob(config::get('MINECRAFT_PATH')."/".$properties['level-name']."/players/*.dat") as $filepath)
 					{
 						$filename = explode("/",$filepath);
 						$filename = $filename[count($filename)-1];
@@ -161,12 +161,12 @@
 					}
 				}
 
-				if(file_exists(NETDEV_PATH))
+				if(file_exists(config::get('NETDEV_PATH')))
 				{
 					//Get system specs
-					$devset1 = dev2array(file_get_contents(NETDEV_PATH));
+					$devset1 = dev2array(file_get_contents(config::get('NETDEV_PATH')));
 					sleep(1); //Wait for the values to change.
-					$devset2 = dev2array(file_get_contents(NETDEV_PATH));
+					$devset2 = dev2array(file_get_contents(config::get('NETDEV_PATH')));
 
 					foreach($devset1 as $devname => $dev)
 					{
@@ -183,10 +183,10 @@
 					}
 				}
 
-				if(file_exists(CPU_PATH) && file_exists(LOAD_PATH))
+				if(file_exists(config::get('CPU_PATH')) && file_exists(config::get('LOAD_PATH')))
 				{
-					$cpu = cpuinfo2array(file_get_contents(CPU_PATH));
-					$load = file_get_contents(LOAD_PATH);
+					$cpu = cpuinfo2array(file_get_contents(config::get('CPU_PATH')));
+					$load = file_get_contents(config::get('LOAD_PATH'));
 					$load = explode(" ", $load );
 					//Load total calulated by number processors
 					$cpu_load = ($load[0]/count($cpu))*100;
@@ -205,7 +205,7 @@
 
 
 				//Get services
-				$psout = exec("ps aux | grep ".substr(MINECRAFT_BIN,0,strlen(MINECRAFT_BIN)-1)."[".substr(MINECRAFT_BIN,-1)."]");
+				$psout = exec("ps aux | grep ".substr(config::get('MINECRAFT_BIN'),0,strlen(config::get('MINECRAFT_BIN'))-1)."[".substr(config::get('MINECRAFT_BIN'),-1)."]");
 				if($psout)
 				{
 					$psout_array = array();
@@ -244,30 +244,22 @@
 							<div><?php echo $name;?></div>
 							<div class="control">
 								<?php
-								if(isset($_GET['pn']['op']))
+								$menu = array();
+								foreach(glob("./interface/player-*.inc.php") as $includefile) include($includefile);
+								?>
+								<ul>
+								<?
+								foreach($menu as $label=>$item)
 								{
-									?><a href="javascript:player_deop('<?php echo $name;?>');">deop</a> | <?php
-								}
-								else
-								{
-									?><a href="javascript:player_op('<?php echo $name;?>');">op</a> | <?php
-								}
+									if(isset($item['function']))
+										$function = $item['function'];
+									else
+										$function = "send_console";
 
-								if(isset($_GET['pn']['banned']))
-								{
-									?><a href="javascript:player_pardon('<?php echo $name;?>');">pardon</a> | <?php
-								}
-								else
-								{
-									?><a href="javascript:player_ban('<?php echo $name;?>');">ban</a> | <?php
-								}
-
-								if(isset($_GET['pn']['connected']))
-								{
-									?><a href="javascript:player_kick('<?php echo $name;?>');">kick</a> | <?php
+									echo "<li><a href=\"javascript:".$function."('".$item['command']."');\">".$label."</a></li>";
 								}
 								?>
-								<a href="javascript:player_delete('<?php echo $name;?>');">del</a>
+								</ul>
 							</div>
 						</div>
 						<div style="clear:both;"></div>

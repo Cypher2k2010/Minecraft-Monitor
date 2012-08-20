@@ -115,26 +115,12 @@ function send_console(command)
 
 function player_ban(name)
 {
-	$.ajax({
-		type: "GET",
-		url: 'index.ajax.php',
-		data: {"action":"playerban","p":name},
-		success: function(response) {
-			$("div[player="+name+"].player").appendTo("#banned div.list");
-		}
-	});
+	send_console("ban "+name);
 }
 
 function player_pardon(name)
 {
-	$.ajax({
-		type: "GET",
-		url: 'index.ajax.php',
-		data: {"action":"playerpardon","p":name},
-		success: function(response) {
-			$("div[player="+name+"].player").appendTo("#other div.list");
-		}
-	});
+	send_console("pardon "+name);
 }
 
 function player_kick(name)
@@ -184,6 +170,30 @@ function player_delete(name)
 }
 
 
+function player_in(playernode,location)
+{
+	if($("#"+location+" div.list div[player="+playernode.name+"].player").length != 0)
+		return true;
+	else
+		return false;
+}
+
+function place_player(playernode,player_html)
+{
+
+	if(playernode.op)
+	{
+		$("#ops div.list").append(player_html);
+	}
+	else if(playernode.banned)
+	{
+		$("#banned div.list").append(player_html);
+	}
+	else
+	{
+		$("#other div.list").append(player_html);
+	}
+}
 
 function reload_player(playernode)
 {
@@ -201,24 +211,27 @@ function reload_player(playernode)
 		success: function(response) {
 			player_html = response;
 
-			if($("div[player="+playernode.name+"].player").length == 0)
-			{
-				if(playernode.op)
-				{
-					$("#ops div.list").append(player_html);
-				}
-				else if(playernode.banned)
-				{
-					$("#banned div.list").append(player_html);
-				}
-				else
-				{
-					$("#other div.list").append(player_html);
-				}
-			}
+			if(player_in(playernode,"ops") && playernode.op)
+				$action = "refresh";
+			else
+				$action = "replace";
+
+			if(player_in(playernode,"banned") && playernode.banned)
+				$action = "refresh";
+			else
+				$action = "replace";
+
+			if(player_in(playernode,"ops") && playernode.op)
+				$action = "refresh";
+			else
+				$action = "replace";
+
+			if($action == "refresh")
+				$("div[player="+playernode.name+"].player").replaceWith(player_html);
 			else
 			{
-				$("div[player="+playernode.name+"].player").replaceWith(player_html);
+				$("div[player="+playernode.name+"].player").remove();
+				place_player(playernode,player_html);
 			}
 
 		}

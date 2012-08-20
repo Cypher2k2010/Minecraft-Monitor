@@ -17,14 +17,7 @@
 		<div class="container">
 			<div class="content">
 				<div class="menu">
-
-					<ul>
-						<li><a href="configure.php">Configure</a></li>
-						<li><a href="server.php">Server Properties</a></li>
-						<li><a href="index.php?logout">Log out</a></li>
-						<div style="clear:both;"></div>
-					</ul>
-
+				<?php include("include/menu.inc.php");?>
 				</div>
 
 				<div id="console"></div>

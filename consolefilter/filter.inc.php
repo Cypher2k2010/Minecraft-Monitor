@@ -16,6 +16,8 @@
 	$cli_colour['light_gray'] = '37;0';
 	$cli_colour['white'] = '37;1';
 	$cli_colour_code = array_flip($cli_colour);
+	$cli_colour_code['30;22'] = 'black';
+	$cli_colour_code['33;22'] = 'yellow';
 	$cli_colour_code['35;22'] = 'light_purple';
 
 
@@ -113,7 +115,10 @@
 
 	function translateline($line)
 	{
-		include("filter-bukkit.inc.php");
+		foreach(glob("./consolefilter/filter-*.inc.php") as $includefile)
+		{
+			require($includefile);
+		}
 
 		return $line;
 	}

@@ -1,11 +1,12 @@
-{	"MAX_MEMORY":"2048",
+{
+	"NETDEV":"p6p1",
+
+	"MAX_MEMORY":"4096",
 	"MIN_MEMORY":"1024",
+	"MINECRAFT_PATH":"/home/minecraft/tekkit",
+	"MINECRAFT_BIN":"Tekkit.jar",
 
-	"MINECRAFT_PATH":"/home/user/Games/mcserver",
-	"MINECRAFT_BIN":"Tekkit_test.jar",
-
-	"PIPE_PATH":"/home/user",
-
+	"PIPE_PATH":"/home/minecraft",
 	"NETDEV_PATH":"\/proc\/net\/dev",
 	"CPU_PATH":"\/proc\/cpuinfo",
 	"LOAD_PATH":"\/proc\/loadavg",
