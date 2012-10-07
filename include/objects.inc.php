@@ -128,10 +128,13 @@ class minecraft
 		while(true)
 		{
 			if($this->running()) break;
-			chdir(MINECRAFT_PATH);
-
-			pclose(popen(config::get('JAVA_PATH').'java -Xmx'.config::get('MAX_MEMORY').'M -Xms'.config::get('MIN_MEMORY').'M -jar '.config::get('MINECRAFT_BIN').' nogui >>'.$this->pipeout.' 0<>'.$this->pipein.' 2>&1 &', 'r'));
-			sleep(3);
+			if(chdir(config::get('MINECRAFT_PATH')))
+			{
+				pclose(popen(config::get('JAVA_PATH').'java -Xmx'.config::get('MAX_MEMORY').'M -Xms'.config::get('MIN_MEMORY').'M -jar '.config::get('MINECRAFT_BIN').' nogui >>'.$this->pipeout.' 0<>'.$this->pipein.' 2>&1 &', 'r'));
+				sleep(3);
+			}
+			else
+				return false;
 		}
 		return true;
 	}

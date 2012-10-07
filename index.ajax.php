@@ -250,7 +250,7 @@
 								foreach(glob("./interface/player-*.inc.php") as $includefile) include($includefile);
 								?>
 								<ul>
-								<?
+								<?php
 								foreach($menu as $label=>$item)
 								{
 									if(isset($item['function']))

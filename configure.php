@@ -40,7 +40,6 @@
 
 					<div class="monitor pagedialog">
 						<h3>Monitor Customisations</h3>
-
 						<div class="row">
 							<div class="label">WAN Interface:</div>
 							<div class="control">
@@ -49,31 +48,22 @@
 									$devset = dev2array(file_get_contents(config::get('NETDEV_PATH')));
 									foreach($devset as $devname=>$devdata)
 									{
-										echo "<option>".$devname."</option>";
+										if(config::get('NETDEV') == $devname)
+											echo "<option selected>".$devname."</option>";
+										else
+											echo "<option>".$devname."</option>";
+
 									}
 								?>
 								</select>
 							</div>
+
 							<div class="info">
 								<p>Sometimes when a server has more than one network interface, you'll need to specify which one is the primary.</p>
 								<p>This is the interface that the bandwidth measurements use.</p>
 							</div>
 							<div style="clear:both;"></div>
 						</div>
-
-
-						<div class="row">
-							<div class="label">:</div>
-							<div class="control">
-
-							</div>
-							<div class="info">
-								<p></p>
-							</div>
-							<div style="clear:both;"></div>
-						</div>
-
-
 					</div>
 
 					<div class="server pagedialog">
