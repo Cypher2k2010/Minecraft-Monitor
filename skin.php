@@ -52,7 +52,7 @@ else
 {
 	$pngraw = file_get_contents("http://s3.amazonaws.com/MinecraftSkins/".$username.".png");
 	if(strlen($pngraw)==0)
-		$pngraw = file_get_contents("files/playerskin/char.png");
+		$pngraw = file_get_contents("skins/default.png");
 
 	// Create image instances
 	$src = imagecreatefromstring($pngraw);
